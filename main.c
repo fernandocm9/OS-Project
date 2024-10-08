@@ -10,23 +10,31 @@ void URLtoFile(){
 
     char inputURL[100];
 
-    status = regcomp(&rx, "^((https?://)?[[:alnum:]]+[.]+com|((https?://)?[[:alnum:]]+[.]+com/|[.]/)?[[:alnum:]]+(/?[[:alnum:]]+)*([/]|[.]html))$", 0);
+    status = regcomp(&rx, "^((http://www\.|https://www\.|http://|https://)?[[:alnum:]]+([[:punct:]][[:alnum:]]+)*\.[[:lower:]]\{2,5}(:[[:digit:]]\{1,5})?(\/.*)?)$", REG_EXTENDED);
     if (status == 0){
         printf("Regex compile success\n");
     } else {
         printf("Regex compile no good\n");
+        return;
     }
 
     printf("Enter URL to retrieve information\n");
-    scanf("%s", &inputURL);
+    scanf("%99s", inputURL);
     printf("%s\n", inputURL);
 
-    status = regexec(&rx, &inputURL, 0, NULL, 0); //does the comparison to check for valid URL that ends with html
-    if (status == 0){
+    status = regexec(&rx, inputURL, 0, NULL, 0); //does the comparison to check for valid URL that ends with html
+
+    if (status == 0) {
         printf("Regex matches URL\n");
-    } else {
+    } else if (status == REG_NOMATCH) {
         printf("Regex no match with URL\n");
+    } else {
+       printf("Regex execution error\n");
     }
+
+
+    // Free the compiled regex memory
+    regfree(&rx);
 }
 
 int main(){
@@ -43,8 +51,6 @@ int main(){
         } else {
             printf("\nThat was not a valid option.\n");
         }
-        
-        
     }
     
     return 0;
